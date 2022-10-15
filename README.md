@@ -77,11 +77,34 @@ cap rpush:stop     # Stop rpush
 The following configurable options are available, and listed with their defaults. Override them to suit your project's needs:
 
 ```ruby
-  set :rpush_role, :app
-  set :rpush_env,  -> { fetch(:rack_env, fetch(:rails_env, fetch(:stage))) }
-  set :rpush_conf, -> { File.join(shared_path, 'config', 'rpush.rb') }
-  set :rpush_log,  -> { File.join(shared_path, 'log', 'rpush.log') }
-  set :rpush_pid,  -> { File.join(shared_path, 'tmp', 'pids', 'rpush.pid') }
+  set :rpush_pid, -> { File.join(shared_path, 'tmp', 'pids', 'rpush.pid') }
+  set :rpush_env, fetch(:rack_env) { fetch(:rails_env) { fetch(:stage) } }
+  set :rpush_log, -> { File.join(shared_path, 'log', 'rpush.log') }
+  set :rpush_config, -> { File.join(current_path, 'config', 'initializers', 'rpush.rb') }
+  set :rpush_timeout, 30
+  set :rpush_roles, [:app]
+  set :rpush_processes, 1
+```
+
+with systemd options. Override them to suit your project's needs:
+
+```ruby
+  set :rpush_service_unit_name, -> { "rpush_#{fetch(:application)}_#{fetch(:rpush_env)}" }
+  set :rpush_service_unit_user, :system
+  set :rpush_enable_lingering, true
+  set :rpush_lingering_user, nil
+```
+
+with monit options. Override them to suit your project's needs:
+
+```ruby
+  set :rpush_service_name, -> { "rpush_#{fetch(:application)}_#{fetch(:rpush_env)}" }
+  set :rpush_monit_templates_path, 'config/deploy/templates'
+  set :rpush_monit_conf_dir, '/etc/monit/conf.d'
+  set :rpush_monit_conf_file, "#{fetch(:rpush_service_name)}.conf"
+  set :rpush_monit_use_sudo, true
+  set :monit_bin, '/usr/bin/monit'
+  set :rpush_monit_default_hooks, false
 ```
 
 The options assume ```rpush.rb``` is defined in ```linked_files```. They also assume the following directories are listed in ```linked_dirs```:

@@ -1,4 +1,5 @@
-# coding: utf-8
+# frozen_string_literal: true
+
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'capistrano/rpush/version'
@@ -8,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.version       = Capistrano::RpushPlugin::VERSION
   spec.authors       = ['Mel Riffe', 'Cliff Braton']
   spec.email         = ['mel@juicyparts.com', 'cliff.braton@gmail.com']
-  spec.summary       = %q{Capistrano3 plugin with basic 'start', 'stop' commands for rpush.}
-  spec.description   = %q{A set of Capistrano3 tasks to controll a deployed Rpush installation. The tasks include: restart, start, status, and stop.}
+  spec.summary       = "Capistrano3 plugin with basic 'start', 'stop' commands for rpush."
+  spec.description   = 'A set of Capistrano3 tasks to controll a deployed Rpush installation. The tasks include: restart, start, status, and stop.'
   spec.homepage      = 'http://juicyparts.com/capistrano-rpush'
   spec.license       = 'MIT'
 
@@ -20,11 +21,12 @@ Gem::Specification.new do |spec|
 
   spec.post_install_message = 'Thanks for installing the Capistrano::Rpush plugin!'
   spec.metadata = {
-    'source_code'   => 'https://github.com/juicyparts/capistrano-rpush',
-    'issue_tracker' => 'https://github.com/juicyparts/capistrano-rpush/issues',
+    'source_code' => 'https://github.com/juicyparts/capistrano-rpush',
+    'issue_tracker' => 'https://github.com/juicyparts/capistrano-rpush/issues'
   }
 
-  spec.add_dependency 'capistrano', '~> 3.9', '>= 3.9.1'
+  spec.add_dependency 'capistrano', '>= 3.9.0'
+  spec.add_dependency 'capistrano-bundler'
   spec.add_dependency 'rpush', '>= 2.7'
 
   spec.add_development_dependency 'bundler', '~> 2.2'

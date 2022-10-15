@@ -1,73 +1,16 @@
-git_plugin = self
+# frozen_string_literal: true
+
+namespace :deploy do
+  before :starting, :check_rpush_hooks do
+    invoke 'rpush:add_default_hooks' if fetch(:rpush_default_hooks)
+  end
+end
 
 namespace :rpush do
-  desc 'Check if config file exists'
-  task :check do
-    on roles (fetch(:rpush_role)) do |role|
-      unless  test "[ -f #{fetch(:rpush_conf)} ]"
-        warn 'rpush.rb NOT FOUND!'
-        info 'Configure rpush for your project before attempting a deployment.'
-      end
-    end
-  end
-
-  desc 'Restart rpush'
-  task :restart do
-    on roles (fetch(:rpush_role)) do |role|
-      git_plugin.rpush_switch_user(role) do
-        if test "[ -f #{fetch(:rpush_pid)} ]"
-          invoke 'rpush:stop'
-        end
-        invoke 'rpush:start'
-      end
-    end
-  end
-
-  desc 'Start rpush'
-  task :start do
-    on roles (fetch(:rpush_role)) do |role|
-      git_plugin.rpush_switch_user(role) do
-        if test "[ -f #{fetch(:rpush_conf)} ]"
-          info "using conf file #{fetch(:rpush_conf)}"
-        else
-          invoke 'rpush:check'
-        end
-        within current_path do
-          with rack_env: fetch(:rpush_env) do
-            execute :rpush, "start -p #{fetch(:rpush_pid)} -c #{fetch(:rpush_conf)} -e #{fetch(:rpush_env)}"
-          end
-        end
-      end
-    end
-  end
-
-  desc 'Status rpush'
-  task :status do
-    on roles (fetch(:rpush_role)) do |role|
-      git_plugin.rpush_switch_user(role) do
-        if test "[ -f #{fetch(:rpush_conf)} ]"
-          within current_path do
-            with rack_env: fetch(:rpush_env) do
-              execute :rpush, "status -c #{fetch(:rpush_conf)} -e #{fetch(:rpush_env)}"
-            end
-          end
-        end
-      end
-    end
-  end
-
-  desc 'Stop rpush'
-  task :stop do
-    on roles (fetch(:rpush_role)) do |role|
-      git_plugin.rpush_switch_user(role) do
-        if test "[ -f #{fetch(:rpush_pid)} ]"
-          within current_path do
-            with rack_env: fetch(:rpush_env) do
-              execute :rpush, "stop -p #{fetch(:rpush_pid)} -c #{fetch(:rpush_conf)} -e #{fetch(:rpush_env)}"
-            end
-          end
-        end
-      end
-    end
+  task :add_default_hooks do
+    after 'deploy:starting', 'rpush:quiet' if Rake::Task.task_defined?('rpush:quiet')
+    after 'deploy:updated', 'rpush:stop'
+    after 'deploy:published', 'rpush:start'
+    after 'deploy:failed', 'rpush:restart'
   end
 end

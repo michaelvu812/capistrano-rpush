@@ -1,0 +1,8 @@
+# Monit configuration for Rpush
+# Service name: <%= rpush_service_name %>
+#
+check process <%= rpush_service_name %>
+  matching 'rpush .* <%= fetch(:application) %>'
+  start program = "/bin/su - <%= rpush_user(role) %> -c 'cd <%= current_path %> && <%= SSHKit.config.command_map[:bundle] %> exec rpush start -e <%= fetch(:rpush_env) %> <%= rpush_foreground %> <%= rpush_logfile ? ">> #{rpush_logfile} 2>&1" : nil %> &'" with timeout <%= fetch(:rpush_timeout).to_i + 10 %> seconds
+  stop program = "/bin/su - <%= rpush_user(role) %> -c 'ps ax | grep "<%= "rpush .* #{fetch(:application)}" %>" | grep -v grep | awk "{print \$1}" | xargs --no-run-if-empty kill'" with timeout <%= fetch(:rpush_timeout).to_i + 10  %> seconds
+  group <%= fetch(:rpush_monit_group) || fetch(:application) %>-rpush
