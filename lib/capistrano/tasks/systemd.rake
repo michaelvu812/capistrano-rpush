@@ -238,7 +238,7 @@ namespace :rpush do
   end
 
   def rpush_processes
-    fetch(rpush_processes, 1)
+    fetch(:rpush_processes, 1)
   end
 
   def rpush_service_file_name(index = nil)
